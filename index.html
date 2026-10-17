@@ -305,11 +305,10 @@ p{font-size:12px;margin-bottom:5px;}.trial-container{padding:14px 26px;margin:6p
 </div>
 
 <script>
-/* ============================================================
-   CONFIG  — troque URL/KEY se o BluePlay tiver backend próprio
-   ============================================================ */
-var SUPABASE_URL="https://bknbydcaaalyeyncfyze.supabase.co";
-var SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJrbmJ5ZGNhYWFseWV5bmNfeXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5OTUzODcsImV4cCI6MjEwNjU3MTM4N30.FMR90ELrwArXl3s3lko1c_Zy96rFkWrk7fTegOk6m_4";
+/* ========== NOVO BACKEND BLUEPLAY ========== */
+var SUPABASE_URL="https://hsyuyxbetkbvzmyarfaj.supabase.co";
+var SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzeXV5eGJldGtidnpteWFyZmFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNTI4ODMsImV4cCI6MjEwNzgyODg4M30.0RV-SCHuIksr0P1aFqrhzUvXvgbbXmCot2cA6Z1ERd4";
+
 var FUNC_VERIFICAR        = SUPABASE_URL+"/functions/v1/verificar-dispositivo";
 var FUNC_CRIAR_COBRANCA    = SUPABASE_URL+"/functions/v1/super-service";
 var FUNC_LOGIN            = SUPABASE_URL+"/functions/v1/login-cliente";
@@ -321,8 +320,8 @@ var LEMBRAR_KEY           = "blueplay_credenciais";
 
 var TRIAL_DURACAO_MS = 3*24*60*60*1000;
 var POLL_INTERVALO   = 5000;
-var MAX_POLLING      = 120;   /* 10 min — PIX pode demorar */
-var POLL_STATUS_MS   = 20000; /* re-checa status do dispositivo a cada 20s */
+var MAX_POLLING      = 120;
+var POLL_STATUS_MS   = 20000;
 
 var PRECOS = {'mensal_primeiro':'R$ 12,90','mensal':'R$ 18,90','anual':'R$ 149,90','lifetime':'R$ 450,00'};
 
@@ -331,9 +330,6 @@ var contadorTimer=null, statusTimer=null;
 var statusAtual=null, planoAguardando=null, paymentIdAtual=null;
 var telaAnterior='tela-trial';
 
-/* ============================================================
-   UTIL
-   ============================================================ */
 function $(id){return document.getElementById(id);}
 function texto(el,t){if(el)el.innerText=t;}
 function escapaHtml(s){
@@ -345,9 +341,6 @@ function waLink(msg){
 return 'https://wa.me/'+NUMERO_WHATSAPP+'?text='+encodeURIComponent(msg);
 }
 
-/* ============================================================
-   DEVICE ID
-   ============================================================ */
 function obterDeviceId(){
 try{
 if(typeof AndroidApp!=='undefined'&&AndroidApp&&typeof AndroidApp.getAndroidId==='function'){
@@ -368,9 +361,6 @@ try{localStorage.setItem(DEVICE_KEY,id);}catch(e){}
 return id;
 }
 
-/* ============================================================
-   HTTP
-   ============================================================ */
 function chamarFuncao(url,corpo,callback){
 var xhr=new XMLHttpRequest();
 xhr.open("POST",url,true);
@@ -397,9 +387,6 @@ xhr.ontimeout=function(){callback("Tempo esgotado",null);};
 try{xhr.send(JSON.stringify(corpo));}catch(e){callback("Erro ao enviar",null);}
 }
 
-/* ============================================================
-   NAVEGAÇÃO ENTRE TELAS
-   ============================================================ */
 function mostrarTela(id){
 var atual=document.querySelector('.card.ativo');
 if(atual&&atual.id!==id)telaAnterior=atual.id;
@@ -441,9 +428,6 @@ if(el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'center'});
 },30);
 }
 
-/* ============================================================
-   D-PAD (controle remoto)
-   ============================================================ */
 document.addEventListener('keydown',function(e){
 var card=document.querySelector('.card.ativo');
 if(!card)return;
@@ -503,9 +487,6 @@ if(!melhor && dx!==0)melhor=lista[(idx+(dx>0?1:-1)+lista.length)%lista.length];
 return melhor;
 }
 
-/* ============================================================
-   HINT
-   ============================================================ */
 function esconderHint(){var h=$('tv-hint');if(h)h.classList.add('escondido');}
 function resetHint(){
 var h=$('tv-hint');if(!h)return;
@@ -516,9 +497,6 @@ window._hintTimer=setTimeout(esconderHint,5000);
 document.addEventListener('keydown',resetHint);
 document.addEventListener('mousemove',resetHint);
 
-/* ============================================================
-   BOOT
-   ============================================================ */
 window.addEventListener('load',function(){
 try{if(window.location.search.indexOf('reset=1')>=0)localStorage.clear();}catch(e){}
 resetHint();
@@ -572,7 +550,6 @@ exibirTrial();
 iniciarMonitorStatus();
 }
 
-/* Re-checa status a cada 20s: detecta liberação/expiração feita no painel */
 function iniciarMonitorStatus(){
 pararMonitorStatus();
 statusTimer=setInterval(function(){
@@ -597,9 +574,6 @@ if(c2&&(c2.id==='tela-trial'||c2.id==='tela-boas-vindas'))exibirTrial();
 function pararMonitorStatus(){if(statusTimer){clearInterval(statusTimer);statusTimer=null;}}
 function pararTodosTimers(){pararPolling();pararContadorTrial();pararMonitorStatus();}
 
-/* ============================================================
-   CONTADOR DO TRIAL
-   ============================================================ */
 function calcRestante(){
 if(!statusAtual)return null;
 var inicioRaw=statusAtual.trial_inicio||statusAtual.data_inicio;
@@ -647,9 +621,6 @@ contadorTimer=setInterval(atualizarContadorTrial,1000);
 }
 function pararContadorTrial(){if(contadorTimer){clearInterval(contadorTimer);contadorTimer=null;}}
 
-/* ============================================================
-   TELA TRIAL
-   ============================================================ */
 function exibirTrial(){
 if(!statusAtual){mostrarTela('tela-erro');return;}
 var tela=$('tela-trial');
@@ -678,7 +649,6 @@ mostrarTela('tela-trial');
 iniciarContadorTrial();
 }
 
-/* continua o teste passando por boas-vindas (status trial) */
 function continuarTeste(){
 if(!statusAtual||statusAtual.status==='expirado'){
 mostrarAviso('Seu teste expirou. Escolha um plano para continuar.');
@@ -714,9 +684,6 @@ document.body.appendChild(d);
 setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},3200);
 }
 
-/* ============================================================
-   LIBERAR / BLOQUEAR
-   ============================================================ */
 function liberarAcessoApp(){
 try{
 if(typeof AndroidApp!=='undefined'&&AndroidApp&&typeof AndroidApp.liberarAcesso==='function'){
@@ -751,9 +718,6 @@ if(typeof AndroidApp!=='undefined'&&AndroidApp&&typeof AndroidApp.abrirUrl==='fu
 window.open(link,'_blank','noopener');
 }
 
-/* ============================================================
-   PLANOS / PIX
-   ============================================================ */
 function escolherPlano(planoId){
 planoAguardando=planoId;
 texto($('qr-valor'),PRECOS[planoId]||'R$ 0,00');
@@ -831,9 +795,6 @@ setTimeout(irParaCriarConta,1500);
 },POLL_INTERVALO);
 }
 
-/* ============================================================
-   CRIAR CONTA
-   ============================================================ */
 function irParaCriarConta(){
 mostrarTela('tela-criar-conta');
 setTimeout(function(){var u=$('criar-usuario');if(u)u.focus();},150);
@@ -875,9 +836,6 @@ irParaBoasVindas(usuario);
 });
 }
 
-/* ============================================================
-   LOGIN
-   ============================================================ */
 function toggleLembrar(e){
 if(e)e.stopPropagation();
 var cb=$('lembrar-senha');
@@ -937,9 +895,6 @@ else localStorage.removeItem(LEMBRAR_KEY);
 }catch(e){}
 }
 
-/* ============================================================
-   BOAS-VINDAS
-   ============================================================ */
 function animarBarra(idBarra,duracao){
 var barra=$(idBarra);
 if(!barra)return;
@@ -998,7 +953,6 @@ animarBarra('barra-bv',3000);
 if(info.status==='expirado'){
 setTimeout(function(){mostrarTela('tela-planos');},3500);
 }else{
-/* TRIAL e ATIVO liberam o player; o app Android decide internamente */
 setTimeout(liberarAcessoApp,3500);
 }
 }
